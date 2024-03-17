@@ -69,13 +69,13 @@ func mockkmsfactoryfactory(key *rsa.PrivateKey) func(context.Context) (interface
 }
 
 // mockKMSCA retruns a KMSCA client using a KMS mock factory.
-func newMockSigner(keyUri string) crypto.Signer {
+func newMockSigner(keyURI string) crypto.Signer {
 	// Generate an RSA key
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		panic("failed to generate RSA key")
 	}
 
-	s, _ := signer.NewKMSCryptoWithFactory(context.TODO(), keyUri, x509.SHA256WithRSAPSS, mockkmsfactoryfactory(key))
+	s, _ := signer.NewKMSCryptoWithFactory(context.TODO(), keyURI, x509.SHA256WithRSAPSS, mockkmsfactoryfactory(key))
 	return s
 }

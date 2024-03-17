@@ -41,8 +41,6 @@ import (
 
 var scheme = runtime.NewScheme()
 
-const webhookPort = 9943
-
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 

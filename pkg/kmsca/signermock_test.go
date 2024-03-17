@@ -17,21 +17,21 @@ import (
 )
 
 type MockSigner struct {
-	KeyUri string
+	KeyURI string
 	Algo   x509.SignatureAlgorithm
 	Key    *rsa.PrivateKey
 	mu     sync.Mutex
 }
 
-func newMockSigner(_ context.Context, keyUri string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
+func newMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
 	if algo == x509.UnknownSignatureAlgorithm {
 		algo = x509.SHA256WithRSAPSS
 	}
 	if (algo != x509.SHA256WithRSA) && (algo != x509.SHA256WithRSAPSS) {
 		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS")
 	}
-	if keyUri == "" {
-		return nil, fmt.Errorf("KeyUri cannot be empty")
+	if keyURI == "" {
+		return nil, fmt.Errorf("KeyURI cannot be empty")
 	}
 
 	// Generate an RSA key
@@ -41,7 +41,7 @@ func newMockSigner(_ context.Context, keyUri string, algo x509.SignatureAlgorith
 	}
 
 	return &MockSigner{
-		KeyUri: keyUri,
+		KeyURI: keyURI,
 		Algo:   algo,
 		Key:    key,
 	}, nil

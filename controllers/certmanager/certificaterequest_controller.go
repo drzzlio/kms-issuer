@@ -124,7 +124,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	// Sign CertificateRequest
-	cert, err := pkiutil.GenerateTemplateFromCertificateRequest(cr)
+	cert, err := pkiutil.CertificateTemplateFromCertificateRequest(cr)
 	if err != nil {
 		log.Error(err, "failed to decode certificate request")
 		return ctrl.Result{}, r.setStatus(ctx, cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonFailed, "Failed to decode certificate request: %v", err)
@@ -136,7 +136,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	// Get the Key URI from the key referenced by KeyRef
-	keyUri, err := getKeyFromRef(ctx, r.Client, issuer.Namespace, issuer.Spec.KeyRef)
+	keyURI, err := getKeyFromRef(ctx, r.Client, issuer.Namespace, issuer.Spec.KeyRef)
 	if err != nil {
 		return ctrl.Result{}, r.setStatus(ctx, cr, cmmeta.ConditionFalse, cmapi.CertificateRequestReasonFailed, "Error getting key from KeyRef: %v", err)
 	}
@@ -144,7 +144,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 	signed, err := r.KMSCA.SignCertificate(
 		ctx,
 		&kmsca.IssueCertificateInput{
-			KeyUri:    keyUri,
+			KeyURI:    keyURI,
 			Parent:    parent,
 			Cert:      cert,
 			PublicKey: cert.PublicKey,

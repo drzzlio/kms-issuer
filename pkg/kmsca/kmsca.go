@@ -42,7 +42,7 @@ const (
 	DefaultCertRenewalRatio = 2.0 / 3
 )
 
-// A factory that creates a signer given a keyUri and signing algo
+// A factory that creates a signer given a keyURI and signing algo
 // Mainly useful for testing, defaults to signer.NewKMSCrypto
 type SignerFactory func(context.Context, string, x509.SignatureAlgorithm) (crypto.Signer, error)
 
@@ -51,7 +51,7 @@ type SignerFactory func(context.Context, string, x509.SignatureAlgorithm) (crypt
 type KMSCA struct {
 	signerCache   map[string]crypto.Signer
 	signerFactory SignerFactory
-	mu sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // NewKMSCA creates a new instance of the KMSCA client with a session
@@ -68,26 +68,26 @@ func NewKMSCAWithFactory(factory SignerFactory) *KMSCA {
 }
 
 // Basically a pull-through cache for kms key metadata
-func (ca *KMSCA) getSigner(ctx context.Context, keyUri string) (crypto.Signer, error) {
+func (ca *KMSCA) getSigner(ctx context.Context, keyURI string) (crypto.Signer, error) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
 
-	_, ok := ca.signerCache[keyUri]
+	_, ok := ca.signerCache[keyURI]
 	if !ok {
-		kmssigner, err := ca.signerFactory(ctx, keyUri, x509.SHA256WithRSAPSS)
+		kmssigner, err := ca.signerFactory(ctx, keyURI, x509.SHA256WithRSAPSS)
 		if err != nil {
 			return nil, err
 		}
-		ca.signerCache[keyUri] = kmssigner
+		ca.signerCache[keyURI] = kmssigner
 	}
 
-	return ca.signerCache[keyUri], nil
+	return ca.signerCache[keyURI], nil
 }
 
 // Creates a certificate intended for use as a CA
 func (ca *KMSCA) GenerateCertificateAuthorityCertificate(ctx context.Context, input *GenerateCertificateAuthorityCertificateInput) (*x509.Certificate, error) {
 	// Get the signer's public key
-	kmssigner, err := ca.getSigner(ctx, input.KeyUri)
+	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (ca *KMSCA) GenerateCertificateAuthorityCertificate(ctx context.Context, in
 
 // Self-signs a cert, usually a root CA cert
 func (ca *KMSCA) SelfSignCertificate(ctx context.Context, input *SelfSignCertificateInput) (*x509.Certificate, error) {
-	kmssigner, err := ca.getSigner(ctx, input.KeyUri)
+	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (ca *KMSCA) SelfSignCertificate(ctx context.Context, input *SelfSignCertifi
 
 // Signs a certificate request with a parent cert held in KMS
 func (ca *KMSCA) SignCertificate(ctx context.Context, input *IssueCertificateInput) (*x509.Certificate, error) {
-	kmssigner, err := ca.getSigner(ctx, input.KeyUri)
+	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
 		return nil, err
 	}
@@ -172,17 +172,17 @@ type GenerateCertificateAuthorityCertificateInput struct {
 	// and in the end of an hour will be identical
 	Rounding time.Duration
 	// the URI for the signing key in the GCP KMS API
-	KeyUri string
+	KeyURI string
 }
 
 type SelfSignCertificateInput struct {
 	Cert   *x509.Certificate
-	KeyUri string
+	KeyURI string
 }
 
 type IssueCertificateInput struct {
 	// the URI for the key in the GCP KMS API
-	KeyUri string
+	KeyURI string
 	// CSR Certificate Request
 	Cert *x509.Certificate
 	// PublicKey

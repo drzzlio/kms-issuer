@@ -52,8 +52,8 @@ func getKeyFromRef(ctx context.Context, kclient client.Client, issuerNS string, 
 		return "", fmt.Errorf("the KeyRef must specify only one of `External` or `Name`")
 	}
 
-	keyUri := keyref.External
-	if keyUri == "" {
+	keyURI := keyref.External
+	if keyURI == "" {
 		var key kcckms.KMSCryptoKey
 		keyapiname := types.NamespacedName{
 			Name:      keyref.Name,
@@ -65,12 +65,12 @@ func getKeyFromRef(ctx context.Context, kclient client.Client, issuerNS string, 
 		}
 		// SelfLink is the GCP KMS API path to the actual key
 		if key.Status.SelfLink != nil {
-			keyUri = *key.Status.SelfLink
+			keyURI = *key.Status.SelfLink
 		} else {
 			// Can happen if the config controller hasn't finished creating the key in KMS yet
 			return "", fmt.Errorf("key has no SelfLink yet")
 		}
 	}
 
-	return keyUri, nil
+	return keyURI, nil
 }

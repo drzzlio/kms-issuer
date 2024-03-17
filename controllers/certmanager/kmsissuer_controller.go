@@ -85,13 +85,13 @@ func (r *KMSIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	r.setIssuerDefaultValues(issuer)
 
 	// Get the Key URI from the key referenced by KeyRef
-	keyUri, err := getKeyFromRef(ctx, r.Client, issuer.Namespace, issuer.Spec.KeyRef)
+	keyURI, err := getKeyFromRef(ctx, r.Client, issuer.Namespace, issuer.Spec.KeyRef)
 	if err != nil {
 		return ctrl.Result{}, r.manageFailure(ctx, issuer, err, "Error getting key from KeyRef")
 	}
 
 	// Calculate a desired certificate
-	certInput := desiredCertificateAuthorityCertificateInput(issuer, keyUri)
+	certInput := desiredCertificateAuthorityCertificateInput(issuer, keyURI)
 	desiredCert, err := r.KMSCA.GenerateCertificateAuthorityCertificate(ctx, certInput)
 	if err != nil {
 		return ctrl.Result{}, r.manageFailure(ctx, issuer, err, "Failed to compare with existing certificate")
@@ -102,7 +102,7 @@ func (r *KMSIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Info("siging CA certificate")
 		cert, err := r.KMSCA.SelfSignCertificate(ctx, &kmsca.SelfSignCertificateInput{
 			Cert:   desiredCert,
-			KeyUri: keyUri,
+			KeyURI: keyURI,
 		})
 		if err != nil {
 			return ctrl.Result{}, r.manageFailure(ctx, issuer, err, "Failed to generate the Certificate Authority Certificate")
@@ -193,14 +193,14 @@ func (r *KMSIssuerReconciler) certificateNeedsRenewal(issuer *kmsiapi.KMSIssuer,
 }
 
 // desiredCertificateAuthorityCertificateInput returns the desired cert input
-func desiredCertificateAuthorityCertificateInput(issuer *kmsiapi.KMSIssuer, keyUri string) *kmsca.GenerateCertificateAuthorityCertificateInput {
+func desiredCertificateAuthorityCertificateInput(issuer *kmsiapi.KMSIssuer, keyURI string) *kmsca.GenerateCertificateAuthorityCertificateInput {
 	return &kmsca.GenerateCertificateAuthorityCertificateInput{
 		Subject: pkix.Name{
 			CommonName: issuer.Spec.CommonName,
 		},
 		Duration: issuer.Spec.Duration.Duration,
 		Rounding: issuer.Spec.Duration.Duration - issuer.Spec.RenewBefore.Duration,
-		KeyUri:   keyUri,
+		KeyURI:   keyURI,
 	}
 }
 

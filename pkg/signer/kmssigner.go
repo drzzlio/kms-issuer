@@ -22,8 +22,8 @@ import (
 )
 
 var (
-	refreshMutex    = &sync.Mutex{}
-	publicKey       crypto.PublicKey
+	refreshMutex = &sync.Mutex{}
+	publicKey    crypto.PublicKey
 )
 
 type ClientFactory func(context.Context) (interfaces.KMSClient, error)
@@ -33,10 +33,10 @@ type KMS struct {
 
 	PublicKeyFile string
 
-	KeyUri             string
+	KeyURI             string
 	SignatureAlgorithm x509.SignatureAlgorithm
 
-	primaryVersionUri string
+	primaryVersionURI string
 	// A factory function, mainly useful for testing
 	clientFactory ClientFactory
 }
@@ -51,12 +51,12 @@ func newCloudKmsClient(ctx context.Context) (interfaces.KMSClient, error) {
 // using the currently primary version of the key.
 //
 // The signature algorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS
-func NewKMSCrypto(ctx context.Context, keyUri string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
-	return NewKMSCryptoWithFactory(ctx, keyUri, algo, newCloudKmsClient)
+func NewKMSCrypto(ctx context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
+	return NewKMSCryptoWithFactory(ctx, keyURI, algo, newCloudKmsClient)
 }
 
 // Creates a new KMS signer using a given client factory, mainly useful when testing to mock out the kms interface
-func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.SignatureAlgorithm, factory ClientFactory) (crypto.Signer, error) {
+func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, algo x509.SignatureAlgorithm, factory ClientFactory) (crypto.Signer, error) {
 	// Validate inputs
 	if algo == x509.UnknownSignatureAlgorithm {
 		algo = x509.SHA256WithRSA
@@ -65,8 +65,8 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.Signa
 		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS")
 	}
 
-	if keyUri == "" {
-		return nil, fmt.Errorf("KeyUri cannot be empty")
+	if keyURI == "" {
+		return nil, fmt.Errorf("KeyURI cannot be empty")
 	}
 
 	// Get the current primary key version
@@ -77,7 +77,7 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.Signa
 	}
 	defer kmsClient.Close()
 
-	key, err := kmsClient.GetCryptoKey(ctx, &kmspb.GetCryptoKeyRequest{Name: keyUri})
+	key, err := kmsClient.GetCryptoKey(ctx, &kmspb.GetCryptoKeyRequest{Name: keyURI})
 	if err != nil {
 		fmt.Printf("Error getting key %v", err)
 		return nil, err
@@ -85,9 +85,9 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.Signa
 
 	// Create the KMS instance
 	kms := &KMS{
-		KeyUri:             keyUri,
+		KeyURI:             keyURI,
 		SignatureAlgorithm: algo,
-		primaryVersionUri:  key.Primary.Name,
+		primaryVersionURI:  key.Primary.Name,
 		clientFactory:      factory,
 	}
 
@@ -103,7 +103,7 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.Signa
 }
 
 func (t *KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) (crypto.PublicKey, error) {
-	dresp, err := kmsClient.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: t.primaryVersionUri})
+	dresp, err := kmsClient.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: t.primaryVersionURI})
 	if err != nil {
 		fmt.Printf("Error getting GetPublicKey %v", err)
 		return nil, err
@@ -168,7 +168,7 @@ func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 		}
 	}
 	req := &kmspb.AsymmetricSignRequest{
-		Name: t.primaryVersionUri,
+		Name: t.primaryVersionURI,
 		Digest: &kmspb.Digest{
 			Digest: &kmspb.Digest_Sha256{
 				Sha256: digest,

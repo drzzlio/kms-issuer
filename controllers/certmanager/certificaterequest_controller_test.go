@@ -45,7 +45,7 @@ var _ = Context("CertificateRequestReconciler", func() {
 	Describe("when a new CertificateRequest is created", func() {
 		It("should sign the certificate request", func() {
 			By("Creating a KMSIssuer")
-			keyUri := "abcd12345"
+			keyURI := "abcd12345"
 			issuerKey := client.ObjectKey{
 				Name:      "test-kms-issuer",
 				Namespace: "default",
@@ -57,7 +57,7 @@ var _ = Context("CertificateRequestReconciler", func() {
 				},
 				Spec: kmsiapi.KMSIssuerSpec{
 					KeyRef: kcck8s.ResourceRef{
-						External: keyUri,
+						External: keyURI,
 					},
 					CommonName: "RootCA",
 					Duration:   &metav1.Duration{},
@@ -78,20 +78,19 @@ var _ = Context("CertificateRequestReconciler", func() {
 				Name:      "test-kms-issuer",
 				Namespace: "default",
 			}
-			// exampleDNSNames := []string{"dnsName1.co", "dnsName2.ninja"}
-			// exampleIPAddresses := []string{
-			// 	"8.8.8.8",
-			// 	"1.1.1.1",
-			// }
-			// exampleURIs := []string{"spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"}
+
 			cr := gen.CertificateRequest(crKey.Name,
+				gen.SetCertificateRequestDuration(&metav1.Duration{Duration: time.Hour * 24 * 90}),
+				gen.SetCertificateRequestNamespace(crKey.Namespace),
 				gen.SetCertificateRequestIssuer(cmmeta.ObjectReference{
 					Name:  issuer.Name,
 					Kind:  "KMSIssuer",
 					Group: kmsiapi.GroupVersion.Group,
 				}),
-				gen.SetCertificateRequestNamespace(crKey.Namespace),
 			)
+			// exampleDNSNames := []string{"dnsName1.co", "dnsName2.ninja"}
+			// exampleIPAddresses := []string{ "8.8.8.8", "1.1.1.1" }
+			// exampleURIs := []string{"spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"}
 			// cr, _, err := util.NewCertManagerBasicCertificateRequest( //nolint:staticcheck // TODO: fixed when refactored
 			// 	crKey.Name, issuerKey.Name, "KMSIssuer",
 			// 	&metav1.Duration{

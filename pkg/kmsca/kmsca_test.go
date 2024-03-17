@@ -31,7 +31,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var keyUri = "abcd12345"
+var keyURI = "abcd12345"
 
 var _ = Context("KMSCA", func() {
 
@@ -46,7 +46,7 @@ var _ = Context("KMSCA", func() {
 					CommonName: "Test CA",
 				},
 				Duration: time.Hour,
-				KeyUri:   keyUri,
+				KeyURI:   keyURI,
 			}
 			cert, err := client.GenerateCertificateAuthorityCertificate(context.TODO(), input)
 			Expect(err).To(BeNil())
@@ -69,7 +69,7 @@ var _ = Context("KMSCA", func() {
 				},
 				Duration: time.Hour,
 				Rounding: time.Hour * 24 * 365,
-				KeyUri:   keyUri,
+				KeyURI:   keyURI,
 			}
 			first, err := client.GenerateCertificateAuthorityCertificate(context.TODO(), input)
 			Expect(err).To(BeNil())
@@ -90,7 +90,7 @@ var _ = Context("KMSCA", func() {
 						CommonName: "Test CA",
 					},
 					Duration: time.Hour,
-					KeyUri:   keyUri,
+					KeyURI:   keyURI,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -100,7 +100,7 @@ var _ = Context("KMSCA", func() {
 				context.TODO(),
 				&kmsca.SelfSignCertificateInput{
 					Cert:   cacert,
-					KeyUri: keyUri,
+					KeyURI: keyURI,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -128,7 +128,7 @@ var _ = Context("KMSCA", func() {
 						CommonName: "Test CA",
 					},
 					Duration: time.Hour,
-					KeyUri:   keyUri,
+					KeyURI:   keyURI,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -138,7 +138,7 @@ var _ = Context("KMSCA", func() {
 				context.TODO(),
 				&kmsca.SelfSignCertificateInput{
 					Cert:   cacert,
-					KeyUri: keyUri,
+					KeyURI: keyURI,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -169,7 +169,7 @@ var _ = Context("KMSCA", func() {
 			signed, err := client.SignCertificate(
 				context.TODO(),
 				&kmsca.IssueCertificateInput{
-					KeyUri:    keyUri,
+					KeyURI:    keyURI,
 					Cert:      cert,
 					Parent:    parent,
 					PublicKey: certPrivKey.Public(),
