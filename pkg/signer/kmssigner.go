@@ -147,7 +147,6 @@ func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 	crc32c := func(data []byte) uint32 {
 		t := crc32.MakeTable(crc32.Castagnoli)
 		return crc32.Checksum(data, t)
-
 	}
 	digestCRC32C := crc32c(digest)
 
