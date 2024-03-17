@@ -12,7 +12,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 GOSRC = ./controllers/... ./pkg/... ./apis/...
-CODEDIRS={./controllers/...,./pkg/...,./apis/...}
+CODEDIRS={./controllers/...,./pkg/...,./apis/...,./}
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # This is a requirement for 'setup-envtest.sh' in the test target.

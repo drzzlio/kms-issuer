@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
+	"github.com/Skyscanner/kms-issuer/v4/pkg/signermock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -192,5 +193,5 @@ var _ = Context("KMSCA", func() {
 
 // mockKMSCA retruns a KMSCA client using a KMS mock factory.
 func mockKMSCA() *kmsca.KMSCA {
-	return kmsca.NewKMSCAWithFactory(newMockSigner)
+	return kmsca.NewKMSCAWithFactory(signermock.NewMockSigner)
 }

@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	kmsca "github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
+	"github.com/Skyscanner/kms-issuer/v4/pkg/signermock"
 
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 
@@ -48,7 +49,7 @@ var (
 	testEnv   *envtest.Environment
 	ctx       context.Context
 	cancel    context.CancelFunc
-	ca        kmsca.KMSCA
+	ca        *kmsca.KMSCA
 )
 
 func TestAPIs(t *testing.T) {
@@ -57,6 +58,9 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	// Set the CA up with a mock signer
+	ca = kmsca.NewKMSCAWithFactory(signermock.NewMockSigner)
+
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 	ctx, cancel = context.WithCancel(context.TODO())
 
@@ -94,13 +98,13 @@ var _ = BeforeSuite(func() {
 		Client:                 k8sManager.GetClient(),
 		Log:                    logf.Log,
 		Recorder:               k8sManager.GetEventRecorderFor("certificaterequests-controller"),
-		KMSCA:                  &ca,
+		KMSCA:                  ca,
 		CheckApprovedCondition: true,
 		Clock:                  clock.RealClock{},
 	}).SetupWithManager(k8sManager)
 	Expect(err).NotTo(HaveOccurred(), "failed to setup the CertificateRequestReconciler controller")
 
-	err = NewKMSIssuerReconciler(k8sManager, &ca).SetupWithManager(k8sManager)
+	err = NewKMSIssuerReconciler(k8sManager, ca).SetupWithManager(k8sManager)
 	Expect(err).NotTo(HaveOccurred(), "failed to setup the KMSIssuerReconciler controller")
 
 	go func() {

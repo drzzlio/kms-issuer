@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.package tpm
 // from https://github.com/salrashid123/signer/blob/master/pem/pem.go
 // derivative copyright Josh Perry 2023 under the same license
-package kmsca_test
+package signermock
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type MockSigner struct {
 	mu     sync.Mutex
 }
 
-func newMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
+func NewMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
 	if algo == x509.UnknownSignatureAlgorithm {
 		algo = x509.SHA256WithRSAPSS
 	}
