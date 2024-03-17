@@ -28,6 +28,7 @@
           golangci-lint
           kubebuilder
           kustomize
+          kubectl
           gnumake
         ];
       };
