@@ -10,7 +10,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
 	"fmt"
 	"io"
 	"sync"
@@ -22,18 +21,11 @@ const (
 
 type MockSigner struct {
 	KeyURI string
-	Algo   x509.SignatureAlgorithm
 	Key    *rsa.PrivateKey
 	mu     sync.Mutex
 }
 
-func NewMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
-	if algo == x509.UnknownSignatureAlgorithm {
-		algo = x509.SHA256WithRSAPSS
-	}
-	if (algo != x509.SHA256WithRSA) && (algo != x509.SHA256WithRSAPSS) {
-		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS")
-	}
+func NewMockSigner(_ context.Context, keyURI string) (crypto.Signer, error) {
 	if keyURI == "" {
 		return nil, fmt.Errorf("KeyURI cannot be empty")
 	}
@@ -46,7 +38,6 @@ func NewMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorith
 
 	return &MockSigner{
 		KeyURI: keyURI,
-		Algo:   algo,
 		Key:    key,
 	}, nil
 }
@@ -71,28 +62,13 @@ func (t *MockSigner) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([
 		}
 	}
 
-	var signature []byte
-	var err error
 	// RSA-PSS: https://github.com/golang/go/issues/32425
+	var ropts rsa.PSSOptions
+	ropts.SaltLength = rsa.PSSSaltLengthEqualsHash
 
-	if t.Algo == x509.SHA256WithRSAPSS {
-		var ropts rsa.PSSOptions
-		ropts.SaltLength = rsa.PSSSaltLengthEqualsHash
-
-		signature, err = rsa.SignPSS(rand.Reader, t.Key, opts.HashFunc(), digest, &ropts)
-		if err != nil {
-			return nil, fmt.Errorf("failed to sign RSA-PSS %v", err)
-		}
-	} else if t.Algo == x509.SHA256WithRSA {
-		signature, err = rsa.SignPKCS1v15(rand.Reader, t.Key, opts.HashFunc(), digest)
-		if err != nil {
-			return nil, fmt.Errorf("failed to sign RSA-SignPKCS1v15 %v", err)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to sign RSA-PSS %v", err)
-		}
-	} else {
-		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS: %v", t.Algo)
+	signature, err := rsa.SignPSS(rand.Reader, t.Key, opts.HashFunc(), digest, &ropts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign RSA-PSS %v", err)
 	}
 
 	return signature, nil

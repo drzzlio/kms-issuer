@@ -42,9 +42,9 @@ const (
 	DefaultCertRenewalRatio = 2.0 / 3
 )
 
-// A factory that creates a signer given a keyURI and signing algo
-// Mainly useful for testing, defaults to signer.NewKMSCrypto
-type SignerFactory func(context.Context, string, x509.SignatureAlgorithm) (crypto.Signer, error)
+// A factory that creates a signer given a keyURI.
+// Mainly useful for testing, defaults to signer.NewKMSCrypto.
+type SignerFactory func(context.Context, string) (crypto.Signer, error)
 
 // KMSCA KMS Certificate Authority provides the API operation methods for implementation
 // a certificate authority on top of AWS KMS.
@@ -74,7 +74,7 @@ func (ca *KMSCA) getSigner(ctx context.Context, keyURI string) (crypto.Signer, e
 
 	_, ok := ca.signerCache[keyURI]
 	if !ok {
-		kmssigner, err := ca.signerFactory(ctx, keyURI, x509.SHA256WithRSA)
+		kmssigner, err := ca.signerFactory(ctx, keyURI)
 		if err != nil {
 			return nil, err
 		}
@@ -122,7 +122,6 @@ func (ca *KMSCA) GenerateCertificateAuthorityCertificate(ctx context.Context, in
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 		BasicConstraintsValid: true,
-		SignatureAlgorithm:    x509.SHA256WithRSA,
 	}
 	// Compute the serial number
 	serialNumberKey := fmt.Sprintf("%s %s %v", input, pubstring, cert)
@@ -134,6 +133,7 @@ func (ca *KMSCA) GenerateCertificateAuthorityCertificate(ctx context.Context, in
 
 // Self-signs a cert, usually a root CA cert
 func (ca *KMSCA) SelfSignCertificate(ctx context.Context, input *SelfSignCertificateInput) (*x509.Certificate, error) {
+	input.Cert.SignatureAlgorithm = x509.SHA256WithRSAPSS
 	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
 		return nil, err
@@ -151,6 +151,7 @@ func (ca *KMSCA) SelfSignCertificate(ctx context.Context, input *SelfSignCertifi
 
 // Signs a certificate request with a parent cert held in KMS
 func (ca *KMSCA) SignCertificate(ctx context.Context, input *IssueCertificateInput) (*x509.Certificate, error) {
+	input.Cert.SignatureAlgorithm = x509.SHA256WithRSAPSS
 	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
 		return nil, err

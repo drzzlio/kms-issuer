@@ -118,7 +118,7 @@ var _ = Context("KMSCA", func() {
 
 	})
 
-	Describe("when calling SignCertificate", func() {
+	Describe("when calling SignCertificate with SHA256WithRSA", func() {
 
 		It("should return a signed certificate", func() {
 			client := mockKMSCA()
@@ -155,13 +155,12 @@ var _ = Context("KMSCA", func() {
 					StreetAddress: []string{"Golden Gate Bridge"},
 					PostalCode:    []string{"94016"},
 				},
-				IPAddresses:        []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
-				NotBefore:          time.Now(),
-				NotAfter:           time.Now().AddDate(10, 0, 0),
-				SubjectKeyId:       []byte{1, 2, 3, 4, 6},
-				ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-				KeyUsage:           x509.KeyUsageDigitalSignature,
-				SignatureAlgorithm: x509.SHA256WithRSA,
+				IPAddresses:  []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
+				NotBefore:    time.Now(),
+				NotAfter:     time.Now().AddDate(10, 0, 0),
+				SubjectKeyId: []byte{1, 2, 3, 4, 6},
+				ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+				KeyUsage:     x509.KeyUsageDigitalSignature,
 			}
 			certPrivKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 

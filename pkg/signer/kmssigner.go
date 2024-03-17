@@ -13,12 +13,14 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"hash/crc32"
 	"io"
 	"sync"
 
 	cloudkms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/Skyscanner/kms-issuer/v4/pkg/interfaces"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
@@ -32,9 +34,9 @@ type KMS struct {
 	crypto.Signer // https://golang.org/pkg/crypto/#Signer
 
 	PublicKeyFile string
+	PublicKeyPEM  string
 
-	KeyURI             string
-	SignatureAlgorithm x509.SignatureAlgorithm
+	KeyURI string
 
 	primaryVersionURI string
 	// A factory function, mainly useful for testing
@@ -51,20 +53,13 @@ func newCloudKmsClient(ctx context.Context) (interfaces.KMSClient, error) {
 // using the currently primary version of the key.
 //
 // The signature algorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS
-func NewKMSCrypto(ctx context.Context, keyURI string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
-	return NewKMSCryptoWithFactory(ctx, keyURI, algo, newCloudKmsClient)
+func NewKMSCrypto(ctx context.Context, keyURI string) (crypto.Signer, error) {
+	return NewKMSCryptoWithFactory(ctx, keyURI, newCloudKmsClient)
 }
 
 // Creates a new KMS signer using a given client factory, mainly useful when testing to mock out the kms interface
-func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, algo x509.SignatureAlgorithm, factory ClientFactory) (crypto.Signer, error) {
+func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, factory ClientFactory) (crypto.Signer, error) {
 	// Validate inputs
-	if algo == x509.UnknownSignatureAlgorithm {
-		algo = x509.SHA256WithRSA
-	}
-	if (algo != x509.SHA256WithRSA) && (algo != x509.SHA256WithRSAPSS) {
-		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS")
-	}
-
 	if keyURI == "" {
 		return nil, fmt.Errorf("KeyURI cannot be empty")
 	}
@@ -85,10 +80,9 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, algo x509.Signa
 
 	// Create the KMS instance
 	kms := &KMS{
-		KeyURI:             keyURI,
-		SignatureAlgorithm: algo,
-		primaryVersionURI:  key.Primary.Name,
-		clientFactory:      factory,
+		KeyURI:            keyURI,
+		primaryVersionURI: key.Primary.Name,
+		clientFactory:     factory,
 	}
 
 	// Preload the public key
@@ -149,6 +143,14 @@ func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 		return nil, fmt.Errorf("Sign: Digest length doesn't match passed crypto algorithm")
 	}
 
+	// Calculate digest crc32
+	crc32c := func(data []byte) uint32 {
+		t := crc32.MakeTable(crc32.Castagnoli)
+		return crc32.Checksum(data, t)
+
+	}
+	digestCRC32C := crc32c(digest)
+
 	refreshMutex.Lock()
 	defer refreshMutex.Unlock()
 
@@ -174,6 +176,7 @@ func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 				Sha256: digest,
 			},
 		},
+		DigestCrc32C: wrapperspb.Int64(int64(digestCRC32C)),
 	}
 	dresp, err := kmsClient.AsymmetricSign(ctx, req)
 	if err != nil {

@@ -76,6 +76,6 @@ func newMockSigner(keyURI string) crypto.Signer {
 		panic("failed to generate RSA key")
 	}
 
-	s, _ := signer.NewKMSCryptoWithFactory(context.TODO(), keyURI, x509.SHA256WithRSAPSS, mockkmsfactoryfactory(key))
+	s, _ := signer.NewKMSCryptoWithFactory(context.TODO(), keyURI, mockkmsfactoryfactory(key))
 	return s
 }
