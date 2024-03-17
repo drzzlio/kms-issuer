@@ -1,9 +1,4 @@
-// Portions Copyright 2020 Google LLC.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file
-// at: https://github.com/salrashid123/signer/blob/master/kms/kms.go
-// Derivative Copyright 2023 Josh Perry under the same license
-
+// Some ideas from https://github.com/salrashid123/signer/blob/master/kms/kms.go
 package signer
 
 import (
@@ -43,7 +38,6 @@ func newCloudKmsClient(ctx context.Context) (interfaces.KMSClient, error) {
 	return cloudkms.NewKeyManagementClient(ctx)
 }
 
-// /
 // Given the URI to a GCP KMS CryptoKey, validates and creates a KMS signer
 // using the currently primary version of the key.
 //
@@ -108,7 +102,6 @@ func (t *KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) 
 	return pub.(*rsa.PublicKey), nil
 }
 
-// /
 // crypto.Signer.Public impl Gets the public key from the KMS w/memoization
 func (t *KMS) Public() crypto.PublicKey {
 	ctx := context.Background()
@@ -130,7 +123,6 @@ func (t *KMS) Public() crypto.PublicKey {
 	return publicKey
 }
 
-// /
 // crypto.Signer.Sign impl signing a digest using the KMS private key
 func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
 	hash := opts.HashFunc()

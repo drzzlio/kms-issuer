@@ -1,8 +1,4 @@
-// Portions copyright 2020 Google LLC.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.package tpm
-// from https://github.com/salrashid123/signer/blob/master/pem/pem.go
-// derivative copyright Josh Perry 2023 under the same license
+// Some ideas from https://github.com/salrashid123/signer/blob/master/pem/pem.go
 package signermock
 
 import (
