@@ -16,6 +16,10 @@ import (
 	"sync"
 )
 
+const (
+	KEYSIZE = 2048
+)
+
 type MockSigner struct {
 	KeyURI string
 	Algo   x509.SignatureAlgorithm
@@ -35,7 +39,7 @@ func NewMockSigner(_ context.Context, keyURI string, algo x509.SignatureAlgorith
 	}
 
 	// Generate an RSA key
-	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	key, err := rsa.GenerateKey(rand.Reader, KEYSIZE)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate RSA key")
 	}

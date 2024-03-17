@@ -86,7 +86,7 @@ var _ = Context("CertificateRequestReconciler", func() {
 			if err != nil {
 				panic("failed to generate RSA key")
 			}
-			csr, err := gen.CSRWithSigner(key,
+			csr, _ := gen.CSRWithSigner(key,
 				gen.SetCSRCommonName("my-common-name"),
 				gen.SetCSRURIsFromStrings("spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"),
 				gen.SetCSRDNSNames("dnsName1.co", "dnsName2.ninja"),
