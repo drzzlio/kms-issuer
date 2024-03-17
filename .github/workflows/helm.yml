@@ -12,8 +12,8 @@ jobs:
     name: test-helm-chart
     runs-on: ubuntu-latest
     env:
-      IMG: skyscanner/kms-issuer:dev
-      CERT_MANAGER_VERSION: v1.8.0
+      IMG: drzzlio/kms-issuer:dev
+      CERT_MANAGER_VERSION: v1.13.5
 
     steps:
       - name: Checkout

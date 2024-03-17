@@ -161,7 +161,7 @@ var _ = Context("KMSCA", func() {
 				SubjectKeyId:       []byte{1, 2, 3, 4, 6},
 				ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 				KeyUsage:           x509.KeyUsageDigitalSignature,
-				SignatureAlgorithm: x509.SHA256WithRSAPSS,
+				SignatureAlgorithm: x509.SHA256WithRSA,
 			}
 			certPrivKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 

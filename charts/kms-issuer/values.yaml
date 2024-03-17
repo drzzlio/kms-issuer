@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/skyscanner/kms-issuer
+  repository: ghcr.io/drzzlio/kms-issuer
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -26,15 +26,8 @@ args:
   healthProbeBindAddress: :8081
   # -- Enable waiting for CertificateRequests to have an approved condition before signing
   enableApprovedCheck: true
-  # -- The address of a local-kms endpoint for testing
-  localAwsEndpoint: ""
-  # -- Use GCP KMS instead of AWS
-  useGcpKms: false
 
-env:
-  # -- The AWS region the controller is deployed to
-  - name: AWS_REGION
-    value: ""
+env: {}
 
 serviceAccount:
   # Specifies whether a service account should be created

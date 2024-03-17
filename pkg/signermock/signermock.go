@@ -79,7 +79,7 @@ func (t *MockSigner) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([
 		if err != nil {
 			return nil, fmt.Errorf("failed to sign RSA-PSS %v", err)
 		}
-	} else {
+	} else if t.Algo == x509.SHA256WithRSA {
 		signature, err = rsa.SignPKCS1v15(rand.Reader, t.Key, opts.HashFunc(), digest)
 		if err != nil {
 			return nil, fmt.Errorf("failed to sign RSA-SignPKCS1v15 %v", err)
@@ -87,6 +87,9 @@ func (t *MockSigner) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([
 		if err != nil {
 			return nil, fmt.Errorf("failed to sign RSA-PSS %v", err)
 		}
+	} else {
+		return nil, fmt.Errorf("signatureAlgorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS: %v", t.Algo)
 	}
+
 	return signature, nil
 }

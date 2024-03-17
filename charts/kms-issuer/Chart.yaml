@@ -1,6 +1,6 @@
 apiVersion: v2
-name: kms-issuer
-description: A Helm chart to install kms-issuer
+name: gcp-kms-issuer
+description: A Helm chart to install GCP kms-issuer
 
 # A chart can be either an 'application' or a 'library' chart.
 #

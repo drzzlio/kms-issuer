@@ -18,6 +18,8 @@ package certmanager
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
 	"testing"
 	"time"
 
@@ -79,25 +81,27 @@ var _ = Context("CertificateRequestReconciler", func() {
 				Namespace: "default",
 			}
 
+			// Generate CertificateRequest
+			key, err := rsa.GenerateKey(rand.Reader, 2048)
+			if err != nil {
+				panic("failed to generate RSA key")
+			}
+			csr, err := gen.CSRWithSigner(key,
+				gen.SetCSRCommonName("my-common-name"),
+				gen.SetCSRURIsFromStrings("spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"),
+				gen.SetCSRDNSNames("dnsName1.co", "dnsName2.ninja"),
+				gen.SetCSRIPAddresses([]byte{8, 8, 8, 8}, []byte{1, 1, 1, 1}),
+			)
 			cr := gen.CertificateRequest(crKey.Name,
 				gen.SetCertificateRequestDuration(&metav1.Duration{Duration: time.Hour * 24 * 90}),
 				gen.SetCertificateRequestNamespace(crKey.Namespace),
+				gen.SetCertificateRequestCSR(csr),
 				gen.SetCertificateRequestIssuer(cmmeta.ObjectReference{
 					Name:  issuer.Name,
 					Kind:  "KMSIssuer",
 					Group: kmsiapi.GroupVersion.Group,
 				}),
 			)
-			// exampleDNSNames := []string{"dnsName1.co", "dnsName2.ninja"}
-			// exampleIPAddresses := []string{ "8.8.8.8", "1.1.1.1" }
-			// exampleURIs := []string{"spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"}
-			// cr, _, err := util.NewCertManagerBasicCertificateRequest( //nolint:staticcheck // TODO: fixed when refactored
-			// 	crKey.Name, issuerKey.Name, "KMSIssuer",
-			// 	&metav1.Duration{
-			// 		Duration: time.Hour * 24 * 90,
-			// 	},
-			// 	exampleDNSNames, exampleIPAddresses, exampleURIs, x509.RSA,
-			// )
 			Expect(k8sClient.Create(context.Background(), cr)).Should(Succeed(), "failed to create test CertificateRequest resource")
 
 			By("Approving request so it may be signed")
@@ -309,6 +313,7 @@ func TestRequestShouldBeProcessed(t *testing.T) {
 
 			fclient := fakeclient.NewClientBuilder().
 				WithRuntimeObjects(request).
+				WithStatusSubresource(request).
 				WithScheme(scheme).
 				Build()
 

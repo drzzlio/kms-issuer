@@ -74,7 +74,7 @@ func (ca *KMSCA) getSigner(ctx context.Context, keyURI string) (crypto.Signer, e
 
 	_, ok := ca.signerCache[keyURI]
 	if !ok {
-		kmssigner, err := ca.signerFactory(ctx, keyURI, x509.SHA256WithRSAPSS)
+		kmssigner, err := ca.signerFactory(ctx, keyURI, x509.SHA256WithRSA)
 		if err != nil {
 			return nil, err
 		}
@@ -122,7 +122,7 @@ func (ca *KMSCA) GenerateCertificateAuthorityCertificate(ctx context.Context, in
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 		BasicConstraintsValid: true,
-		SignatureAlgorithm:    x509.SHA256WithRSAPSS,
+		SignatureAlgorithm:    x509.SHA256WithRSA,
 	}
 	// Compute the serial number
 	serialNumberKey := fmt.Sprintf("%s %s %v", input, pubstring, cert)
