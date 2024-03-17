@@ -23,7 +23,6 @@ import (
 
 var (
 	refreshMutex    = &sync.Mutex{}
-	x509Certificate x509.Certificate
 	publicKey       crypto.PublicKey
 )
 
@@ -103,7 +102,7 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyUri string, algo x509.Signa
 	return kms, nil
 }
 
-func (t KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) (crypto.PublicKey, error) {
+func (t *KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) (crypto.PublicKey, error) {
 	dresp, err := kmsClient.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: t.primaryVersionUri})
 	if err != nil {
 		fmt.Printf("Error getting GetPublicKey %v", err)
@@ -122,7 +121,7 @@ func (t KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) (
 
 // /
 // crypto.Signer.Public impl Gets the public key from the KMS w/memoization
-func (t KMS) Public() crypto.PublicKey {
+func (t *KMS) Public() crypto.PublicKey {
 	ctx := context.Background()
 	if publicKey == nil {
 		kmsClient, err := t.clientFactory(ctx)
@@ -144,7 +143,7 @@ func (t KMS) Public() crypto.PublicKey {
 
 // /
 // crypto.Signer.Sign impl signing a digest using the KMS private key
-func (t KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
 	hash := opts.HashFunc()
 	if len(digest) != hash.Size() {
 		return nil, fmt.Errorf("Sign: Digest length doesn't match passed crypto algorithm")

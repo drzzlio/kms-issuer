@@ -31,6 +31,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var keyUri = "abcd12345"
+
 var _ = Context("KMSCA", func() {
 
 	Describe("when calling GenerateCertificateAuthorityCertificate", func() {
@@ -44,7 +46,7 @@ var _ = Context("KMSCA", func() {
 					CommonName: "Test CA",
 				},
 				Duration: time.Hour,
-				KeyUri:   "abcd12345",
+				KeyUri:   keyUri,
 			}
 			cert, err := client.GenerateCertificateAuthorityCertificate(context.TODO(), input)
 			Expect(err).To(BeNil())
@@ -67,7 +69,7 @@ var _ = Context("KMSCA", func() {
 				},
 				Duration: time.Hour,
 				Rounding: time.Hour * 24 * 365,
-				KeyUri:   "abcd12345",
+				KeyUri:   keyUri,
 			}
 			first, err := client.GenerateCertificateAuthorityCertificate(context.TODO(), input)
 			Expect(err).To(BeNil())
@@ -81,7 +83,6 @@ var _ = Context("KMSCA", func() {
 
 		It("should return a valid ca cert", func() {
 			client := mockKMSCA()
-			keyUri := "abcd12345"
 			cacert, err := client.GenerateCertificateAuthorityCertificate(
 				context.TODO(),
 				&kmsca.GenerateCertificateAuthorityCertificateInput{
@@ -120,7 +121,6 @@ var _ = Context("KMSCA", func() {
 
 		It("should return a signed certificate", func() {
 			client := mockKMSCA()
-			keyUri := "abcd12345"
 			cacert, err := client.GenerateCertificateAuthorityCertificate(
 				context.TODO(),
 				&kmsca.GenerateCertificateAuthorityCertificateInput{

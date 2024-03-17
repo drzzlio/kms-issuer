@@ -16,10 +16,16 @@
 
       devenv.shells.default = {
         languages.go.enable = true;
+
+        env = {
+          GOPROXY="https://proxy.golang.org,direct";
+        };
+
         packages = with pkgs; [
           gopls
           gotools
           go-tools
+          golangci-lint
           kubebuilder
           kustomize
           gnumake

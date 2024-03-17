@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMG: skyscanner/kms-issuer:dev
-      CERT_MANAGER_VERSION: v1.8.0
+      CERT_MANAGER_VERSION: v1.13.5
     steps:
       - uses: actions/checkout@v3.1.0
 

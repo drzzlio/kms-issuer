@@ -66,9 +66,9 @@ var _ = Context("CertificateRequestReconciler", func() {
 			Expect(k8sClient.Create(context.Background(), issuer)).Should(Succeed(), "failed to create test KMSIssuer resource")
 			Eventually(
 				func() bool {
-					issuer := &kmsiapi.KMSIssuer{}
-					Expect(k8sClient.Get(context.Background(), issuerKey, issuer)).Should(Succeed(), "failed to get KMSIssuer resource")
-					return len(issuer.Status.Certificate) > 0
+					exissuer := &kmsiapi.KMSIssuer{}
+					Expect(k8sClient.Get(context.Background(), issuerKey, exissuer)).Should(Succeed(), "failed to get KMSIssuer resource")
+					return len(exissuer.Status.Certificate) > 0
 				},
 				time.Second*1, time.Millisecond*100,
 			).Should(BeTrue(), "Certificate should be set")
@@ -78,12 +78,12 @@ var _ = Context("CertificateRequestReconciler", func() {
 				Name:      "test-kms-issuer",
 				Namespace: "default",
 			}
-			//exampleDNSNames := []string{"dnsName1.co", "dnsName2.ninja"}
-			//exampleIPAddresses := []string{
-			//	"8.8.8.8",
-			//	"1.1.1.1",
-			//}
-			//exampleURIs := []string{"spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"}
+			// exampleDNSNames := []string{"dnsName1.co", "dnsName2.ninja"}
+			// exampleIPAddresses := []string{
+			// 	"8.8.8.8",
+			// 	"1.1.1.1",
+			// }
+			// exampleURIs := []string{"spiffe://foo.foo.example.net", "spiffe://foo.bar.example.net"}
 			cr := gen.CertificateRequest(crKey.Name,
 				gen.SetCertificateRequestIssuer(cmmeta.ObjectReference{
 					Name:  issuer.Name,
@@ -92,13 +92,13 @@ var _ = Context("CertificateRequestReconciler", func() {
 				}),
 				gen.SetCertificateRequestNamespace(crKey.Namespace),
 			)
-			//cr, _, err := util.NewCertManagerBasicCertificateRequest( //nolint:staticcheck // TODO: fixed when refactored
-			//	crKey.Name, issuerKey.Name, "KMSIssuer",
-			//	&metav1.Duration{
-			//		Duration: time.Hour * 24 * 90,
-			//	},
-			//	exampleDNSNames, exampleIPAddresses, exampleURIs, x509.RSA,
-			//)
+			// cr, _, err := util.NewCertManagerBasicCertificateRequest( //nolint:staticcheck // TODO: fixed when refactored
+			// 	crKey.Name, issuerKey.Name, "KMSIssuer",
+			// 	&metav1.Duration{
+			// 		Duration: time.Hour * 24 * 90,
+			// 	},
+			// 	exampleDNSNames, exampleIPAddresses, exampleURIs, x509.RSA,
+			// )
 			Expect(k8sClient.Create(context.Background(), cr)).Should(Succeed(), "failed to create test CertificateRequest resource")
 
 			By("Approving request so it may be signed")

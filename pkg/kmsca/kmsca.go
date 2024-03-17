@@ -49,9 +49,9 @@ type SignerFactory func(context.Context, string, x509.SignatureAlgorithm) (crypt
 // KMSCA KMS Certificate Authority provides the API operation methods for implementation
 // a certificate authority on top of AWS KMS.
 type KMSCA struct {
-	sync.RWMutex
 	signerCache   map[string]crypto.Signer
 	signerFactory SignerFactory
+	mu sync.RWMutex
 }
 
 // NewKMSCA creates a new instance of the KMSCA client with a session
@@ -69,8 +69,8 @@ func NewKMSCAWithFactory(factory SignerFactory) *KMSCA {
 
 // Basically a pull-through cache for kms key metadata
 func (ca *KMSCA) getSigner(ctx context.Context, keyUri string) (crypto.Signer, error) {
-	ca.Lock()
-	defer ca.Unlock()
+	ca.mu.Lock()
+	defer ca.mu.Unlock()
 
 	_, ok := ca.signerCache[keyUri]
 	if !ok {

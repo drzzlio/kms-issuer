@@ -19,7 +19,7 @@ type mockKmsClient struct {
 	Key *rsa.PrivateKey
 }
 
-func (c *mockKmsClient) AsymmetricSign(ctx context.Context, req *kmspb.AsymmetricSignRequest, opts ...gax.CallOption) (*kmspb.AsymmetricSignResponse, error) {
+func (c *mockKmsClient) AsymmetricSign(_ context.Context, req *kmspb.AsymmetricSignRequest, _ ...gax.CallOption) (*kmspb.AsymmetricSignResponse, error) {
 	var ropts rsa.PSSOptions
 	ropts.SaltLength = rsa.PSSSaltLengthEqualsHash
 
@@ -32,7 +32,7 @@ func (c *mockKmsClient) AsymmetricSign(ctx context.Context, req *kmspb.Asymmetri
 	}, nil
 }
 
-func (c *mockKmsClient) GetCryptoKey(ctx context.Context, req *kmspb.GetCryptoKeyRequest, opts ...gax.CallOption) (*kmspb.CryptoKey, error) {
+func (c *mockKmsClient) GetCryptoKey(_ context.Context, req *kmspb.GetCryptoKeyRequest, _ ...gax.CallOption) (*kmspb.CryptoKey, error) {
 	return &kmspb.CryptoKey{
 		Primary: &kmspb.CryptoKeyVersion{
 			Name: fmt.Sprintf("%s/cryptoKeyVersion/1", req.Name),
@@ -40,7 +40,7 @@ func (c *mockKmsClient) GetCryptoKey(ctx context.Context, req *kmspb.GetCryptoKe
 	}, nil
 }
 
-func (c *mockKmsClient) GetPublicKey(ctx context.Context, req *kmspb.GetPublicKeyRequest, opts ...gax.CallOption) (*kmspb.PublicKey, error) {
+func (c *mockKmsClient) GetPublicKey(_ context.Context, _ *kmspb.GetPublicKeyRequest, _ ...gax.CallOption) (*kmspb.PublicKey, error) {
 	pubkey := c.Key.Public()
 	pubkeyByte, err := x509.MarshalPKIXPublicKey(pubkey)
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *mockKmsClient) Close() error {
 }
 
 func mockkmsfactoryfactory(key *rsa.PrivateKey) func(context.Context) (interfaces.KMSClient, error) {
-	return func(ctx context.Context) (interfaces.KMSClient, error) {
+	return func(_ context.Context) (interfaces.KMSClient, error) {
 		return &mockKmsClient{
 			Key: key,
 		}, nil

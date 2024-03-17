@@ -23,7 +23,7 @@ type MockSigner struct {
 	mu     sync.Mutex
 }
 
-func newMockSigner(ctx context.Context, keyUri string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
+func newMockSigner(_ context.Context, keyUri string, algo x509.SignatureAlgorithm) (crypto.Signer, error) {
 	if algo == x509.UnknownSignatureAlgorithm {
 		algo = x509.SHA256WithRSAPSS
 	}
