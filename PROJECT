@@ -1,17 +1,17 @@
-domain: skyscanner.net
+domain: drzzl.io
 layout:
 - go.kubebuilder.io/v3
 multigroup: true
 projectName: kms-issuer
-repo: github.com/Skyscanner/kms-issuer
+repo: github.com/drzzlio/kms-issuer
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: skyscanner.net
-  group: cert-manager.skyscanner.net
+  domain: drzzl.io
+  group: cert-manager.drzzl.io
   kind: KMSIssuer
-  path: github.com/Skyscanner/kms-issuer/apis/certmanager/v1alpha1
+  path: github.com/drzzlio/kms-issuer/apis/certmanager/v1alpha1
   version: v1alpha1
 version: "3"

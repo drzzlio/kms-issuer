@@ -3,6 +3,7 @@ run:
   deadline: 1m
   tests: true
   skip-dirs:
+  - .devenv
   - .git
   - deploy
   - config

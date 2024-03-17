@@ -1,15 +1,17 @@
-# KMS Issuer
+# GCP KMS Issuer
 
-[![Build Status](https://github.com/Skyscanner/kms-issuer/actions/workflows/test-build.yml/badge.svg?branch=main)](https://github.com/Skyscanner/kms-issuer/actions)
-[![CodeQL Status](https://github.com/Skyscanner/kms-issuer/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Skyscanner/kms-issuer/actions)
-[![E2E Tests](https://github.com/Skyscanner/kms-issuer/actions/workflows/e2e.yaml/badge.svg?branch=main)](https://github.com/Skyscanner/kms-issuer/actions)
-[![Helm Chart Tests](https://github.com/Skyscanner/kms-issuer/actions/workflows/helm.yml/badge.svg?branch=main)](https://github.com/Skyscanner/kms-issuer/actions)
+[![Build Status](https://github.com/drzzlio/kms-issuer/actions/workflows/test-build.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
+[![CodeQL Status](https://github.com/drzzlio/kms-issuer/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
+[![E2E Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/e2e.yaml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
+[![Helm Chart Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/helm.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 
-KMS issuer is a [cert-manager](https://cert-manager.io/) Certificate Request controller that uses [AWS KMS](https://aws.amazon.com/kms/) or [GCP KMS]( https://cloud.google.com/security/products/security-key-management) to sign the certificate request.
+GCP KMS issuer is a [cert-manager](https://cert-manager.io/) Certificate Request controller that uses [GCP KMS]( https://cloud.google.com/security/products/security-key-management) to sign the certificate request.
+
+Forked, with much gratitude, from Skyscanner's original AWS codebase.
 
 ## Getting started
 
-In this guide, we assume that you have a [Kubernetes](https://kubernetes.io/) environment with a cert-manager version supporting CertificateRequest issuers, cert-manager v0.11.0 or higher.
+In this guide, we assume that you have a [Kubernetes](https://kubernetes.io/) environment with a cert-manager version supporting CertificateRequest issuers, cert-manager v1.13.0 or higher.
 
 For any details on Cert-Manager, check the [official documentation](https://cert-manager.io/docs/usage/).
 
@@ -18,7 +20,7 @@ For any details on Cert-Manager, check the [official documentation](https://cert
 You can install the controller using the official helm chart:
 
 ```console
-helm repo add kms-issuer 'https://skyscanner.github.io/kms-issuer'
+helm repo add gcp-kms-issuer 'https://drzzlio.github.io/gcp-kms-issuer'
 helm repo update
 ```
 
@@ -30,10 +32,10 @@ helm upgrade --install kms-issuer kms-issuer/kms-issuer --namespace kms-issuer-s
 
 ### Usage
 
-1. Install [cert-manager](https://cert-manager.io/docs/installation/). The operator has been tested with version v0.15.1
+1. Install [cert-manager](https://cert-manager.io/docs/installation/). The operator has been tested with version v1.13.5
 
 ```bash
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.yaml
+kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.5/cert-manager.yaml
 ```
 
 2. Install and run the kms-issuer
@@ -47,42 +49,51 @@ make install
 make run
 ```
 
-3. Create a KMS Key
+3. Create a KMS KeyRing and CryptoKey
 
-You need a valid KMS asymetric key that as the ability to [SIGN_VERIFY](https://docs.aws.amazon.com/kms/latest/APIReference/API_Sign.html) messages.
-Currently, Cloudformation [does not support](https://github.com/aws-cloudformation/aws-cloudformation-coverage-roadmap/issues/337) KMS SIGN_VERIFY keys.
-To simply the provisioning process, the kms-issuer operator provides a dedicated controller for provisioning a valid KMS key.
+You need a valid KMS asymetric key that as the ability to SIGN_VERIFY messages.
+Since this controller is meant to be used with config connector, create a
+`KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
 
 ```yaml
 cat << EOF | kubectl apply -f -
----
-apiVersion: cert-manager.skyscanner.net/v1alpha1
-kind: KMSKey
+apiVersion: kms.cnrm.cloud.google.com/v1beta1
+kind: KMSKeyRing
 metadata:
-  name: kmskey-sample
+  name: cakeys
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: "abandon"
 spec:
-  aliasName: alias/kms-issuer-example
-  description: a kms-issuer example kms key
-  customerMasterKeySpec: RSA_2048
-  tags:
-    project: kms-issuer
-  deletionPolicy: Delete
-  deletionPendingWindowInDays: 7
+  location: us-central1
+---
+apiVersion: kms.cnrm.cloud.google.com/v1beta1
+kind: KMSCryptoKey
+metadata:
+  name: caroot
+spec:
+  keyRingRef:
+    name: cakeys
+  purpose: ASYMMETRIC_SIGN
+  versionTemplate:
+    algorithm: RSA_SIGN_PSS_2048_SHA256
+    protectionLevel: HSM
+  importOnly: false
 EOF
 ```
 
-4. Create a KMS issuer object
+4. Create a KMS Issuer Referencing the Key
 
 ```yaml
 cat << EOF | kubectl apply -f -
 ---
-apiVersion: cert-manager.skyscanner.net/v1alpha1
+apiVersion: cert-manager.drzzl.io/v1alpha1
 kind: KMSIssuer
 metadata:
   name: kms-issuer
   namespace: default
 spec:
-  keyId: alias/kms-issuer-example # The KMS key id or alias
+  keyRef: 
+    name: caroot
   commonName: My Root CA # The common name for the root certificate
   duration: 87600h # 10 years
 EOF
@@ -139,7 +150,7 @@ spec:
     kind: KMSIssuer
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
-    group: cert-manager.skyscanner.net
+    group: cert-manager.drzzl.io
 EOF
 ```
 
@@ -151,36 +162,19 @@ kubectl get secret example-com-tls
 
 ## API Reference
 
-### KMSKey
-
-A KMSKey resource is used to create an [AWS KMS](https://aws.amazon.com/kms/) asymetric key compatible with the KMS issuer.
-
-| Field                              | Type   | Description |
-| ---------------------------------- | ------ | ----------- |
-| `apiVersion`                       | string | `cert-manager.skyscanner.net/v1alpha1` |
-| `kind`                             | string | `KMSKey` |
-| `metadata`                         | object | Refer to the Kubernetes API [documentation][kubernetes-meta] for `metadata` fields. |
-| `spec`                             | object | Desired state of the KMSKey resource. |
-| `spec.aliasName`                   | string | the alias name for the kms key. This value must begin with alias/ followed by a name, such as alias/ExampleAlias. |
-| `spec.description`                 | string | Description for the key. (optional) |
-| `spec.customerMasterKeySpec`       | string | Determines the signing algorithms that the CMK supports. Only RSA_2048 is currently supported. (optional, default=RSA_2048) |
-| `spec.policy`                      | string | The key policy to attach to the CMK. (optional) |
-| `spec.tags`                        | object | A list of tags for the key. (optional) |
-| `spec.deletionPolicy`              | string | Policy to deletes the alias and key on object deletion. Either `Retain` or `Delete`. (optional, default=Retain). |
-| `spec.deletionPendingWindowInDays` | int    | Number of days before the KMS key gets deleted. If you include a value, it must be between 7 and 30, inclusive. If you do not include a value, it defaults to 30. (optional) |
 ### KMSIssuer
 
 A KMSIssuer resource configures a new [Cert-Manager external issuer](https://cert-manager.io/docs/configuration/external).
 
-| Field              | Type     | Description |
-| ------------------ | -------- | ----------- |
-| `apiVersion`       | string   | `cert-manager.skyscanner.net/v1alpha1` |
-| `kind`             | string   | `KMSIssuer` |
-| `metadata`         | object   | Refer to the Kubernetes API [documentation][kubernetes-meta] for `metadata` fields.  |
-| `spec`             | object   | Desired state of the KMSIssuer resource. |
-| `spec.keyId`       | string   | The unique identifier for the customer master key |
-| `spec.commonName`  | string   | The common name to be used on the Certificate. |
-| `spec.duration`    | duration | Certificate default Duration. (optional, default=26280h aka 3 years) |
+| Field              | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------ | -------- | -----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `apiVersion`       | string   | `cert-manager.drzzl.io/v1alpha1`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `kind`             | string   | `KMSIssuer`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `metadata`         | object   | Refer to the Kubernetes API [documentation][kubernetes-meta] for `metadata` fields.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `spec`             | object   | Desired state of the KMSIssuer resource.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `spec.keyId`       | string   | The unique identifier for the customer master key                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `spec.commonName`  | string   | The common name to be used on the Certificate.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `spec.duration`    | duration | Certificate default Duration. (optional, default=26280h aka 3 years)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `spec.renewBefore` | duration | The amount of time before the certificate’s notAfter time that the issuer will begin to attempt to renew the certificate. If this value is greater than the total duration of the certificate (i.e. notAfter - notBefore), it will be automatically renewed 2/3rds of the way through the certificate’s duration. <br> <br> The `NotBefore` field on the certificate is set to the current time rounded down by the renewal interval. For example, if the certificate is renewed every hour, the `NotBefore` field is set to the beggining of the hour. If the certificate is renewed every day, the `NotBefore` field is set to the beggining of the day. This allows the generation of consistent certificates regardless of when it has been generated during the renewal period, or recreate the same certificate after a backup/restore of your kubernetes cluster. For more details on the computation, check the [time.Truncate](https://golang.org/pkg/time/#Time.Truncate) function. |
 
 [kubernetes-meta]: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta
