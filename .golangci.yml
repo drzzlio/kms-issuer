@@ -46,6 +46,11 @@ linters-settings:
     check-shadowing: true
   maligned:
     suggest-new: true
+  revive:
+    rules:
+      - name: dot-imports
+        severity: warning
+        disabled: true
 
 linters:
   disable-all: true
