@@ -31,8 +31,8 @@ var (
 type ClientFactory func(context.Context) (interfaces.KMSClient, error)
 
 type KMS struct {
-	crypto.Signer // https://golang.org/pkg/crypto/#Signer
-	KeyURI string
+	crypto.Signer     // https://golang.org/pkg/crypto/#Signer
+	KeyURI            string
 	primaryVersionURI string
 	// A kms client factory function, mainly useful for testing
 	clientFactory ClientFactory
