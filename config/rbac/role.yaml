@@ -48,3 +48,17 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - kms.cnrm.cloud.google.com/v1beta1
+  resources:
+  - kmscryptokeys
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - kms.cnrm.cloud.google.com/v1beta1
+  resources:
+  - kmscryptokeys/status
+  verbs:
+  - get
