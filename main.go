@@ -32,10 +32,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	certmanagerskyscannernetv1alpha1 "github.com/Skyscanner/kms-issuer/v4/apis/certmanager/v1alpha1"
-	"github.com/Skyscanner/kms-issuer/v4/controllers/certmanager"
-	"github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	certmanagerskyscannernetv1alpha1 "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
+	"github.com/drzzlio/kms-issuer/v1/controllers/certmanager"
+	"github.com/drzzlio/kms-issuer/v1/pkg/kmsca"
 	//+kubebuilder:scaffold:imports
 )
 

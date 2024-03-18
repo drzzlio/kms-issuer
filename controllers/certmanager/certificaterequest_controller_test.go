@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Skyscanner Limited.
+Copyright 2023 Josh Perry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,10 +24,10 @@ import (
 	"testing"
 	"time"
 
-	kmsiapi "github.com/Skyscanner/kms-issuer/v4/apis/certmanager/v1alpha1"
 	apiutil "github.com/cert-manager/cert-manager/pkg/api/util"
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
+	kmsiapi "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
 
 	kcck8s "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
 	"github.com/cert-manager/cert-manager/test/unit/gen"

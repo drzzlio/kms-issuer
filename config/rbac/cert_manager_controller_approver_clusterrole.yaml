@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cert-manager-controller-approve:cert-manager-skyscanner-net
+  name: cert-manager-controller-approve:cert-manager-drzzl-io
 rules:
 - apiGroups:
   - cert-manager.io
@@ -11,4 +11,4 @@ rules:
   verbs:
   - approve
   resourceNames:
-  - kmsissuers.cert-manager.skyscanner.net/*
+  - kmsissuers.cert-manager.drzzl.io/*

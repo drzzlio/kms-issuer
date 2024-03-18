@@ -29,7 +29,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmsissuers
   verbs:
@@ -41,7 +41,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmsissuers/status
   verbs:
@@ -49,7 +49,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmskeys
   verbs:
@@ -61,7 +61,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmskeys/status
   verbs:
@@ -145,7 +145,7 @@ rules:
 - apiGroups:
   - cert-manager.io
   resourceNames:
-  - kmsissuers.cert-manager.skyscanner.net/*
+  - kmsissuers.cert-manager.drzzl.io/*
   resources:
   - signers
   verbs:

@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Skyscanner Limited.
+Copyright 2023 Josh Perry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,8 +27,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
-	"github.com/Skyscanner/kms-issuer/v4/pkg/signermock"
+	"github.com/drzzlio/kms-issuer/v1/pkg/kmsca"
+	"github.com/drzzlio/kms-issuer/v1/pkg/signermock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

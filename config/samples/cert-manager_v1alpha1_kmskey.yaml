@@ -1,4 +1,4 @@
-apiVersion: cert-manager.skyscanner.net/v1alpha1
+apiVersion: cert-manager.drzzl.io/v1alpha1
 kind: KMSKey
 metadata:
   name: kmskey-sample

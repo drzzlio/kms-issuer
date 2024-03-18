@@ -1,4 +1,4 @@
-module github.com/Skyscanner/kms-issuer/v4
+module github.com/drzzlio/kms-issuer/v1
 
 go 1.20
 

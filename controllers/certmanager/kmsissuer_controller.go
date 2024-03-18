@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Skyscanner Limited.
+Copyright 2023 Josh Perry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +25,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
 	"github.com/go-logr/logr"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,7 +34,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	kmsiapi "github.com/Skyscanner/kms-issuer/v4/apis/certmanager/v1alpha1"
+	kmsiapi "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
+	"github.com/drzzlio/kms-issuer/v1/pkg/kmsca"
 )
 
 const (

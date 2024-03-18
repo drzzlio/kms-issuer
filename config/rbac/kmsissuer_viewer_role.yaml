@@ -5,7 +5,7 @@ metadata:
   name: kmsissuer-viewer-role
 rules:
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmsissuers
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - cert-manager.skyscanner.net
+  - cert-manager.drzzl.io
   resources:
   - kmsissuers/status
   verbs:

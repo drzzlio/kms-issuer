@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Skyscanner Limited.
+Copyright 2023 Josh Perry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,12 +23,12 @@ import (
 
 	"encoding/pem"
 
-	kmsiapi "github.com/Skyscanner/kms-issuer/v4/apis/certmanager/v1alpha1"
-	kmsca "github.com/Skyscanner/kms-issuer/v4/pkg/kmsca"
 	apiutil "github.com/cert-manager/cert-manager/pkg/api/util"
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	pkiutil "github.com/cert-manager/cert-manager/pkg/util/pki"
+	kmsiapi "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
+	kmsca "github.com/drzzlio/kms-issuer/v1/pkg/kmsca"
 	"github.com/go-logr/logr"
 	core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

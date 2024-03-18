@@ -1,5 +1,6 @@
 /*
 Copyright 2020 Skyscanner Limited.
+Copyright 2023 Josh Perry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@ import (
 	"time"
 
 	kcck8s "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
-	kmsiapi "github.com/Skyscanner/kms-issuer/v4/apis/certmanager/v1alpha1"
+	kmsiapi "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -45,7 +46,7 @@ var _ = Context("KMSIssuer", func() {
 
 	Describe("when a new resources is created", func() {
 		It("should sign the intermediate certificate", func() {
-			By("Creating a KMSIssuer object with an empty KeyId")
+			By("Creating a KMSIssuer object")
 			key := client.ObjectKey{
 				Name:      "key",
 				Namespace: "default",
