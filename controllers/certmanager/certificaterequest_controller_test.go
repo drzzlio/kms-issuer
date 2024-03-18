@@ -69,9 +69,8 @@ var _ = Context("CertificateRequestReconciler", func() {
 			Expect(k8sClient.Create(context.Background(), issuer)).Should(Succeed(), "failed to create test KMSIssuer resource")
 			Eventually(
 				func() bool {
-					exissuer := &kmsiapi.KMSIssuer{}
-					Expect(k8sClient.Get(context.Background(), issuerKey, exissuer)).Should(Succeed(), "failed to get KMSIssuer resource")
-					return len(exissuer.Status.Certificate) > 0
+					Expect(k8sClient.Get(context.Background(), issuerKey, issuer)).Should(Succeed(), "failed to get KMSIssuer resource")
+					return len(issuer.Status.Certificate) > 0
 				},
 				time.Second*1, time.Millisecond*100,
 			).Should(BeTrue(), "Certificate should be set")
@@ -113,12 +112,12 @@ var _ = Context("CertificateRequestReconciler", func() {
 			By("Checking the certificate is signed by the KMS issuer")
 			Eventually(
 				func() bool {
-					cr := &cmapi.CertificateRequest{}
 					Expect(k8sClient.Get(context.Background(), crKey, cr)).Should(Succeed(), "failed to get CertificateRequest resource")
 					return len(cr.Status.Certificate) > 0
 				},
 				time.Second*1, time.Millisecond*100,
 			).Should(BeTrue(), "status.Certificate field should be set")
+			Expect(cr.Status.CA).To(Equal(issuer.Status.Certificate))
 		})
 	})
 })
