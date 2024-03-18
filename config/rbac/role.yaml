@@ -12,23 +12,6 @@ rules:
   - create
   - patch
 - apiGroups:
-  - cert-manager.io
-  resources:
-  - certificaterequests
-  verbs:
-  - get
-  - list
-  - update
-  - watch
-- apiGroups:
-  - cert-manager.io
-  resources:
-  - certificaterequests/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - cert-manager.drzzl.io
   resources:
   - kmsissuers
@@ -44,6 +27,23 @@ rules:
   - cert-manager.drzzl.io
   resources:
   - kmsissuers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificaterequests
+  verbs:
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificaterequests/status
   verbs:
   - get
   - patch

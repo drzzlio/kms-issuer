@@ -144,7 +144,7 @@ func (r *CertificateRequestReconciler) Reconcile(ctx context.Context, req ctrl.R
 
 	signed, err := r.KMSCA.SignCertificate(
 		ctx,
-		&kmsca.IssueCertificateInput{
+		&kmsca.SignCertificateInput{
 			KeyURI:    keyURI,
 			Parent:    parent,
 			Cert:      cert,

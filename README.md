@@ -5,9 +5,9 @@
 [![E2E Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/e2e.yaml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 [![Helm Chart Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/helm.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 
-GCP KMS issuer is a [cert-manager](https://cert-manager.io/) Certificate Request controller that uses [GCP KMS]( https://cloud.google.com/security/products/security-key-management) to sign the certificate request.
+GCP KMS issuer is a [cert-manager](https://cert-manager.io/) Issuer controller that uses [GCP KMS](https://cloud.google.com/security/products/security-key-management) to sign certificate requests.
 
-Forked, with much gratitude, from Skyscanner's original AWS codebase.
+Forked, with much gratitude, from Skyscanner's original AWS-targeted codebase.
 
 ## Getting started
 
@@ -51,7 +51,8 @@ make run
 
 3. Create a KMS KeyRing and CryptoKey
 
-You need a valid KMS asymetric key that as the ability to SIGN_VERIFY messages.
+You need a valid KMS asymetric key that as the ability to do ASYMMETRIC_SIGN
+with an RSA PSS SHA256 algorithm.
 Since this controller is meant to be used with config connector, create a
 `KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
 

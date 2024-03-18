@@ -151,7 +151,7 @@ func (ca *KMSCA) SelfSignCertificate(ctx context.Context, input *SelfSignCertifi
 }
 
 // Signs a certificate request with a parent cert held in KMS
-func (ca *KMSCA) SignCertificate(ctx context.Context, input *IssueCertificateInput) (*x509.Certificate, error) {
+func (ca *KMSCA) SignCertificate(ctx context.Context, input *SignCertificateInput) (*x509.Certificate, error) {
 	input.Cert.SignatureAlgorithm = x509.SHA256WithRSAPSS
 	kmssigner, err := ca.getSigner(ctx, input.KeyURI)
 	if err != nil {
@@ -178,18 +178,19 @@ type GenerateCertificateAuthorityCertificateInput struct {
 }
 
 type SelfSignCertificateInput struct {
-	Cert   *x509.Certificate
+	// Certificate to sign with itself
+	Cert *x509.Certificate
+	// the URI for the key in the GCP KMS API
 	KeyURI string
 }
 
-type IssueCertificateInput struct {
+type SignCertificateInput struct {
+	// Certificate to sign
+	Cert *x509.Certificate
 	// the URI for the key in the GCP KMS API
 	KeyURI string
-	// CSR Certificate Request
-	Cert *x509.Certificate
 	// PublicKey
 	PublicKey crypto.PublicKey
 	// Parent Signing Certificate
 	Parent *x509.Certificate
-	// Public
 }

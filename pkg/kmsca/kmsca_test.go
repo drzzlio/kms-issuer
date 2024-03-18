@@ -169,7 +169,7 @@ var _ = Context("KMSCA", func() {
 
 			signed, err := client.SignCertificate(
 				context.TODO(),
-				&kmsca.IssueCertificateInput{
+				&kmsca.SignCertificateInput{
 					KeyURI:    keyURI,
 					Cert:      cert,
 					Parent:    parent,
