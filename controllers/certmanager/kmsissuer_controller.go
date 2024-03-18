@@ -57,8 +57,8 @@ type KMSIssuerReconciler struct {
 // Annotation for generating RBAC role for writing Events
 // +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 
-// +kubebuilder:rbac:groups=cert-manager.skyscanner.net,resources=kmsissuers,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cert-manager.skyscanner.net,resources=kmsissuers/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cert-manager.drzzl.io,resources=kmsissuers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cert-manager.drzzl.io,resources=kmsissuers/status,verbs=get;update;patch
 
 // NewKMSIssuerReconciler Initialise a new KMSIssuerReconciler
 func NewKMSIssuerReconciler(mgr manager.Manager, ca *kmsca.KMSCA) *KMSIssuerReconciler {

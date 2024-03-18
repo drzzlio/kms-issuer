@@ -24,7 +24,7 @@ import (
 
 const (
 	// FinalizerName is the name of the kuberneter finalizer being added to the KMSIssuer resources.
-	FinalizerName = "kms-issuer.finalizers.cert-manager.skyscanner.net"
+	FinalizerName = "kms-issuer.finalizers.cert-manager.drzzl.io"
 )
 
 // NeedToAddFinalizer checks if need to add finalizer to object

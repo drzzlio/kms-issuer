@@ -1,4 +1,4 @@
-# permissions to approve all cert-manager.skyscanner.net requests
+# permissions to approve all cert-manager.drzzl.io requests
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
