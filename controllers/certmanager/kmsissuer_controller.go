@@ -88,6 +88,7 @@ func (r *KMSIssuerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	// Get the Key URI from the key referenced by KeyRef
 	keyURI, err := getKeyFromRef(ctx, r.Client, issuer.Namespace, issuer.Spec.KeyRef)
 	if err != nil {
+		log.Error(err, "error getting key from keyref")
 		return ctrl.Result{}, r.manageFailure(ctx, issuer, err, "Error getting key from KeyRef")
 	}
 
