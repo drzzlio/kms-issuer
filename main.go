@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	kcckms "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/kms/v1beta1"
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	apiv1alpha1 "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
 	"github.com/drzzlio/kms-issuer/v1/controllers/certmanager"
@@ -46,6 +47,7 @@ func init() {
 
 	utilruntime.Must(cmapi.AddToScheme(scheme))
 	utilruntime.Must(apiv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(kcckms.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
