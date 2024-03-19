@@ -36,15 +36,14 @@ import (
 
 var (
 	refreshMutex = &sync.Mutex{}
-	publicKey    crypto.PublicKey
 )
 
 type ClientFactory func(context.Context) (interfaces.KMSClient, error)
 
 type KMS struct {
-	crypto.Signer     // https://golang.org/pkg/crypto/#Signer
-	KeyURI            string
-	primaryVersionURI string
+	crypto.Signer // https://golang.org/pkg/crypto/#Signer
+	KeyURI        string
+	publicKey     crypto.PublicKey
 	// A kms client factory function, mainly useful for testing
 	clientFactory ClientFactory
 }
@@ -56,8 +55,6 @@ func newCloudKmsClient(ctx context.Context) (interfaces.KMSClient, error) {
 
 // Given the URI to a GCP KMS CryptoKey, validates and creates a KMS signer
 // using the currently primary version of the key.
-//
-// The signature algorithm must be either x509.SHA256WithRSA or x509.SHA256WithRSAPSS
 func NewKMSCrypto(ctx context.Context, keyURI string) (crypto.Signer, error) {
 	return NewKMSCryptoWithFactory(ctx, keyURI, newCloudKmsClient)
 }
@@ -69,7 +66,14 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, factory ClientF
 		return nil, fmt.Errorf("KeyURI cannot be empty")
 	}
 
-	// Get the current primary key version
+	// Create the KMS instance
+	kms := &KMS{
+		// Always version 1; if you want a different key, make a new key.
+		KeyURI:        fmt.Sprintf("%s/cryptoKeyVersions/1", keyURI),
+		clientFactory: factory,
+	}
+
+	// Client to get the public key
 	kmsClient, err := factory(ctx)
 	if err != nil {
 		fmt.Printf("Error getting kms client %v", err)
@@ -77,69 +81,32 @@ func NewKMSCryptoWithFactory(ctx context.Context, keyURI string, factory ClientF
 	}
 	defer kmsClient.Close()
 
-	key, err := kmsClient.GetCryptoKey(ctx, &kmspb.GetCryptoKeyRequest{Name: keyURI})
-	if err != nil {
-		fmt.Printf("Error getting key %v", err)
-		return nil, err
-	}
-
-	// Create the KMS instance
-	kms := &KMS{
-		KeyURI:            keyURI,
-		primaryVersionURI: key.Primary.Name,
-		clientFactory:     factory,
-	}
-
-	// Preload the public key
-	publicKey, err = kms.getPublicKey(ctx, kmsClient)
-	if err != nil {
-		fmt.Printf("Error getting kms public key %v", err)
-		return nil, err
-	}
-
-	// Give the enriched instance to the caller
-	return kms, nil
-}
-
-func (t *KMS) getPublicKey(ctx context.Context, kmsClient interfaces.KMSClient) (crypto.PublicKey, error) {
-	dresp, err := kmsClient.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: t.primaryVersionURI})
+	// Get the public key in pem format
+	dresp, err := kmsClient.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: kms.KeyURI})
 	if err != nil {
 		fmt.Printf("Error getting GetPublicKey %v", err)
 		return nil, err
 	}
-	pubKeyBlock, _ := pem.Decode([]byte(dresp.Pem))
 
-	pub, err := x509.ParsePKIXPublicKey(pubKeyBlock.Bytes)
+	// Decode the pem into an x509 public key
+	pubKeyBlock, _ := pem.Decode([]byte(dresp.Pem))
+	pubkey, err := x509.ParsePKIXPublicKey(pubKeyBlock.Bytes)
 	if err != nil {
 		fmt.Printf("Error parsing PublicKey %v", err)
 		return nil, err
 	}
+	kms.publicKey = pubkey
 
-	return pub.(*rsa.PublicKey), nil
+	// Give the KMS instance to the caller
+	return kms, nil
 }
 
-// crypto.Signer.Public impl Gets the public key from the KMS w/memoization
+// crypto.Signer.Public impl Gets the public key retrieved from the KMS
 func (t *KMS) Public() crypto.PublicKey {
-	ctx := context.Background()
-	if publicKey == nil {
-		kmsClient, err := t.clientFactory(ctx)
-		if err != nil {
-			fmt.Printf("Error getting kms client %v", err)
-			return nil
-		}
-		defer kmsClient.Close()
-
-		publicKey, err = t.getPublicKey(ctx, kmsClient)
-		if err != nil {
-			fmt.Printf("Error getting kms public key %v", err)
-			return nil
-		}
-	}
-
-	return publicKey
+	return t.publicKey
 }
 
-// crypto.Signer.Sign impl signing a digest using the KMS private key
+// crypto.Signer.Sign impl signing a digest using the KMS API which holds the private key
 func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
 	hash := opts.HashFunc()
 	if len(digest) != hash.Size() {
@@ -172,7 +139,7 @@ func (t *KMS) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, 
 		}
 	}
 	req := &kmspb.AsymmetricSignRequest{
-		Name: t.primaryVersionURI,
+		Name: t.KeyURI,
 		Digest: &kmspb.Digest{
 			Digest: &kmspb.Digest_Sha256{
 				Sha256: digest,
