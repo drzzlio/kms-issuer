@@ -22,6 +22,7 @@ import (
 	"time"
 
 	kcck8s "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/k8s/v1alpha1"
+	kcckms "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/kms/v1beta1"
 	kmsiapi "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -67,6 +68,58 @@ var _ = Context("KMSIssuer", func() {
 
 			By("Waiting for the Issuer certificate to be issued")
 			issuer = WaitIssuerReady(key)
+
+			By("Getting the Public Cert")
+			Expect(len(issuer.Status.Certificate)).NotTo(BeNil())
+
+			cert, err := ParseCertificate(issuer.Status.Certificate)
+			Expect(err).To(BeNil())
+			Expect(cert.NotAfter.Sub(cert.NotBefore)).To(Equal(defaultCertDuration))
+		})
+
+		It("should sign the intermediate certificate with keyref", func() {
+			By("Creating a KMSIssuer object")
+
+			keyuri := "/blah/cryptokeys/abcd12345"
+			key := &kcckms.KMSCryptoKey{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "abcd12345",
+					Namespace: "default",
+				},
+				Spec: kcckms.KMSCryptoKeySpec{
+					KeyRingRef: kcck8s.ResourceRef{
+						Name: "abcdkeyring",
+					},
+				},
+			}
+			Expect(k8sClient.Create(context.Background(), key)).Should(Succeed(), "failed to create test KMSCryptoKey resource")
+
+			patch := client.MergeFrom(key.DeepCopy())
+			key.Status = kcckms.KMSCryptoKeyStatus{
+				SelfLink: &keyuri,
+			}
+			Expect(k8sClient.Status().Patch(context.Background(), key, patch)).Should(Succeed(), "failed to set KMSCryptoKey status")
+
+			issuername := client.ObjectKey{
+				Name:      "keyref",
+				Namespace: "default",
+			}
+			issuer := &kmsiapi.KMSIssuer{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      issuername.Name,
+					Namespace: issuername.Namespace,
+				},
+				Spec: kmsiapi.KMSIssuerSpec{
+					KeyRef: kcck8s.ResourceRef{
+						Name: "abcd12345",
+					},
+					CommonName: "RootCA",
+				},
+			}
+			Expect(k8sClient.Create(context.Background(), issuer)).Should(Succeed(), "failed to create test KMSIssuer resource")
+
+			By("Waiting for the Issuer certificate to be issued")
+			issuer = WaitIssuerReady(issuername)
 
 			By("Getting the Public Cert")
 			Expect(len(issuer.Status.Certificate)).NotTo(BeNil())

@@ -60,6 +60,8 @@ type CertificateRequestReconciler struct {
 
 // +kubebuilder:rbac:groups=cert-manager.io,resources=certificaterequests,verbs=get;list;watch;update
 // +kubebuilder:rbac:groups=cert-manager.io,resources=certificaterequests/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=kms.cnrm.cloud.google.com/v1beta1,resources=kmscryptokeys,verbs=get;list;watch
+// +kubebuilder:rbac:groups=kms.cnrm.cloud.google.com/v1beta1,resources=kmscryptokeys/status,verbs=get
 
 // Reconcile will read and validate a KMSIssuer resource associated to the
 // CertificateRequest resource, and it will sign the CertificateRequest with the

@@ -36,6 +36,7 @@ import (
 	kmsca "github.com/drzzlio/kms-issuer/v1/pkg/kmsca"
 	"github.com/drzzlio/kms-issuer/v1/pkg/signermock"
 
+	kcckms "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/clients/generated/apis/kms/v1beta1"
 	cmapi "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 
 	certmanagerv1alpha1 "github.com/drzzlio/kms-issuer/v1/apis/certmanager/v1alpha1"
@@ -84,6 +85,8 @@ var _ = BeforeSuite(func() {
 	err = certmanagerv1alpha1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 	err = cmapi.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+	err = kcckms.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	//+kubebuilder:scaffold:scheme

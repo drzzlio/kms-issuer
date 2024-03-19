@@ -59,6 +59,8 @@ type KMSIssuerReconciler struct {
 
 // +kubebuilder:rbac:groups=cert-manager.drzzl.io,resources=kmsissuers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=cert-manager.drzzl.io,resources=kmsissuers/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=kms.cnrm.cloud.google.com/v1beta1,resources=kmscryptokeys,verbs=get;list;watch
+// +kubebuilder:rbac:groups=kms.cnrm.cloud.google.com/v1beta1,resources=kmscryptokeys/status,verbs=get
 
 // NewKMSIssuerReconciler Initialise a new KMSIssuerReconciler
 func NewKMSIssuerReconciler(mgr manager.Manager, ca *kmsca.KMSCA) *KMSIssuerReconciler {
