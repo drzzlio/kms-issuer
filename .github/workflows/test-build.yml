@@ -8,6 +8,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  kustomize:
+    name: 'Kustomize'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@master
+
+      - name: 'Kustomize Build'
+        uses: karancode/kustomize-github-action@master
+        with:
+          kustomize_version: '5.4.1'
+          kustomize_build_dir: config/default
+          kustomize_output_file: rendered/gcp-kms-issuer-installer.yaml
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+
+      - name: Archive installer resource yaml
+        uses: actions/upload-artifact@v4
+        with:
+          name: gcp-kms-issuer-installer
+          path: rendered/gcp-kms-issuer-installer.yaml
+
   test-build:
     name: test-build
     runs-on: ubuntu-latest

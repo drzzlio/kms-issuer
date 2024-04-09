@@ -13,12 +13,11 @@ on:
 permissions:
   contents: read
 
-
 jobs:
   update_release_draft:
     permissions:
       contents: write  # for release-drafter/release-drafter to create a github release
-      pull-requests: write  # for release-drafter/release-drafter to add label to PR
+      pull-requests: read  # for release-drafter/release-drafter to add label to PR
     runs-on: ubuntu-latest
     steps:
       # Drafts your next Release notes as Pull Requests are merged into "main"
@@ -27,3 +26,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commitish: main
+          disable-autolabeler: true
