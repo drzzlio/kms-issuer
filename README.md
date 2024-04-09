@@ -3,7 +3,6 @@
 [![Build Status](https://github.com/drzzlio/kms-issuer/actions/workflows/test-build.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 [![CodeQL Status](https://github.com/drzzlio/kms-issuer/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 [![E2E Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/e2e.yaml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
-[![Helm Chart Tests](https://github.com/drzzlio/kms-issuer/actions/workflows/helm.yml/badge.svg?branch=main)](https://github.com/drzzlio/kms-issuer/actions)
 
 GCP KMS issuer is a [cert-manager](https://cert-manager.io/) Issuer controller that uses [GCP KMS](https://cloud.google.com/security/products/security-key-management) to sign certificate requests.
 
