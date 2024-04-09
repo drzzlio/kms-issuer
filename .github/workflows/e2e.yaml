@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4.1.1
 
       - name: Set IMG env var
-        run: echo "IMG=${IMG_BASE}:sha-`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+        run: echo "IMG=${IMG_BASE}:sha-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
       # Build testing docker image
       - name: Build the testing kms-issuer docker image
