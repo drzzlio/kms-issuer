@@ -17,18 +17,18 @@ For any details on Cert-Manager, check the [official documentation](https://cert
 
 ## Install
 
-You can install the controller using the official helm chart:
+The easiest way to install gcp-ksm-issuer in a cluster is to base a
+kustomization on the resources built from `config/default`. It's usually best
+practice to copy the result into your own repo, especially if you're doing
+gitops, so that you don't have a deploy-time github network dependency.
 
-```console
-helm repo add gcp-kms-issuer 'https://drzzlio.github.io/gcp-kms-issuer'
-helm repo update
-```
+We prerendered this in a build pipeline and attach it to releases as
+`gcp-kms-issuer-installer.yaml`.
 
-To install the chart with the release name `kms-issuer`:
-
-```console
-helm upgrade --install kms-issuer kms-issuer/kms-issuer --namespace kms-issuer-system --create-namespace
-```
+You can mutate these resources using our own kustomization, or you can
+reference any elements under `config` directly if you need to more deeply
+change things. You should still prerender this and include the result in your
+repo.
 
 ### Usage
 
@@ -37,6 +37,8 @@ helm upgrade --install kms-issuer kms-issuer/kms-issuer --namespace kms-issuer-s
 ```bash
 kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.5/cert-manager.yaml
 ```
+
+Optionally [install kubernetes config connector](https://cloud.google.com/config-connector/docs/concepts/installation-types) to manage your gcp kms keys with k8s
 
 2. Install and run the kms-issuer
 
@@ -53,8 +55,13 @@ make run
 
 You need a valid KMS asymetric key that as the ability to do ASYMMETRIC_SIGN
 with an RSA PSS SHA256 algorithm.
-Since this controller is meant to be used with config connector, create a
-`KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
+Since this controller is optimally  meant to be used with config connector,
+create a `KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
+
+It _can_ be used without config connector if, for example, your keys are being
+managed by an external IaC tool like terraform. In this case the `external`
+property of the `KMSIssuer.KeyRef` should be the self-link of the key in the
+GCP KMS API.
 
 ```yaml
 cat << EOF | kubectl apply -f -
