@@ -6,4 +6,5 @@ metadata:
 spec:
   commonName: Test Root CA
   duration: 87600h # 10 years
-  keyId: alias/kms-issuer-example
+  keyRef:
+    external: projects/my-project/locations/us-central1/keyRings/my-keyring/cryptoKeys/my-key/cryptoKeyVersions/1
