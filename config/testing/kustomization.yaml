@@ -1,3 +1,4 @@
 # Kustomization used during testing which sets overrides, etc.
 resources:
+- namespace.yaml
 - ../default
