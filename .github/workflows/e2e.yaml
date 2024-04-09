@@ -1,21 +1,25 @@
 name: E2E Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Test and Build"]
+    branches: [main]
+    types: 
+      - completed
 
 jobs:
   e2e:
     name: e2e
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      IMG: drzzlio/kms-issuer:dev
+      IMG_BASE: drzzlio/kms-issuer
       CERT_MANAGER_VERSION: v1.13.5
     steps:
       - uses: actions/checkout@v4.1.1
+
+      - name: Set IMG env var
+        run: echo "IMG=${IMG_BASE}:`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
 
       # Build testing docker image
       - name: Build the testing kms-issuer docker image
