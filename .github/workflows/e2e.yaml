@@ -15,6 +15,9 @@ jobs:
     env:
       IMG_BASE: drzzlio/kms-issuer
       CERT_MANAGER_VERSION: v1.13.5
+    permissions:
+      id-token: write # This is required for requesting the JWT for GCP OIDC federation
+      contents: read  # This is required for actions/checkout
     steps:
       - uses: actions/checkout@v4.1.1
 
@@ -62,7 +65,7 @@ jobs:
         run: kustomize build config/testing | kubectl apply -f -
           
       - name: Install GCP auth secret
-        run: kubectl create -n kms-issuer-system secret generic kmsissueradc --from-file=GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+        run: kubectl create -n kms-issuer-system secret generic kmsissueradc --from-file=gadcreds.json=${GOOGLE_APPLICATION_CREDENTIALS}
 
       - name: Apply KMSIssuer from sample
         run: kubectl apply -f ./config/samples/cert-manager_v1alpha1_kmsissuer.yaml
