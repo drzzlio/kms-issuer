@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      IMG_BASE: drzzlio/kms-issuer
+      IMG_BASE: ghcr.io/drzzlio/kms-issuer
       CERT_MANAGER_VERSION: v1.13.5
     permissions:
       id-token: write # This is required for requesting the JWT for GCP OIDC federation
@@ -36,18 +36,6 @@ jobs:
         uses: helm/kind-action@v1.9.0
         with:
           cluster_name: kind
-      - name: Load test docker image into the kind cluster
-        run: kind load docker-image ${IMG}
-
-      # Install local-kms to the cluster
-      - name: Create local-kms namespace
-        run: kubectl create namespace local-kms
-      - name: Create local-kms deployment
-        run: kubectl create deployment local-kms -n local-kms --port 8080 --image nsmithuk/local-kms:3.11.2
-      - name: Create local-kms service
-        run: kubectl expose deployment local-kms -n local-kms --port 8080
-      - name: Wait for local-kms pod to be ready
-        run: kubectl wait --for=condition=Ready -l app=local-kms -n local-kms pod
 
       - name: Install cert-manager
         run: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
@@ -61,6 +49,7 @@ jobs:
 
       - name: Set docker image to use in Kustomization
         run: make kustomize && cd config/manager && kustomize edit set image controller=${IMG}
+
       - name: Deploy kms-issuer
         run: kustomize build config/testing | kubectl apply -f -
           
