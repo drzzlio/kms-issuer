@@ -70,9 +70,9 @@ jobs:
         run: kubectl wait --for=condition=Ready certificate.cert-manager.io/example-com
 
       - name: Delete certificate
-        run: kubectl delete -f ./config/samples/certificate.yaml
+        run: kubectl delete -f ./config/testing/certificate.yaml
       - name: Delete KMSIssuer
-        run: kubectl delete -f ./config/samples/cert-manager_v1alpha1_kmsissuer.yaml
+        run: kubectl delete -f ./config/testing/test-kmsissuer.yaml
 
       - name: Logs of controller
         if: always()
