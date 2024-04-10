@@ -4,17 +4,25 @@ resources:
 - ../default
 
 patches:
-  - patch: |-
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: controller-manager
-        namespace: system
-      spec:
-        template:
-          spec:
-            containers:
-              - name: manager
-                envFrom:
-                  - secretRef:
-                      name: kmsissueradc
+- patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: controller-manager
+      namespace: system
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: gadcvolume
+              secret:
+                secretName: kmsissueradc
+          containers:
+            - name: manager
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /etc/gadcsecrets/gadcreds.json
+              volumeMounts:
+                - name: gadcvolume
+                  readOnly: true
+                  mountPath: /etc/gadcsecrets
