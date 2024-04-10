@@ -18,12 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
 
-      - name: Set IMG env var
-        run: echo "IMG=${IMG_BASE}:sha-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+      - name: Authenticate to Google Cloud
+        id: gcpauth
+        uses: google-github-actions/auth@v2.1.2
+        with:
+          workload_identity_provider: projects/726581429530/locations/global/workloadIdentityPools/github/providers/github
+          service_account: kmsissuer-tester@gptops-playground.iam.gserviceaccount.com
 
-      # Build testing docker image
-      - name: Build the testing kms-issuer docker image
-        run: docker build -t ${IMG} .
+      - name: Set IMG env var to previously-built image
+        run: echo "IMG=${IMG_BASE}:sha-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
       # Setup kind cluster
       - name: Create k8s Kind Cluster
@@ -57,6 +60,9 @@ jobs:
         run: make kustomize && cd config/manager && kustomize edit set image controller=${IMG}
       - name: Deploy kms-issuer
         run: kustomize build config/testing | kubectl apply -f -
+          
+      - name: Install GCP auth secret
+        run: kubectl create -n kms-issuer-system secret generic kmsissueradc --from-file=GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
 
       - name: Apply KMSIssuer from sample
         run: kubectl apply -f ./config/samples/cert-manager_v1alpha1_kmsissuer.yaml
