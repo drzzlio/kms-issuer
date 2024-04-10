@@ -1,6 +1,6 @@
 # Kustomization used during testing which sets overrides, etc.
+namespace: kms-issuer-system
 resources:
-- namespace.yaml
 - ../default
 
 patches:

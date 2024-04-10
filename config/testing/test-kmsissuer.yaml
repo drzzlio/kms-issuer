@@ -1,0 +1,10 @@
+apiVersion: cert-manager.drzzl.io/v1alpha1
+kind: KMSIssuer
+metadata:
+  name: kms-issuer-test
+  namespace: default
+spec:
+  commonName: Test Root CA
+  duration: 87600h # 10 years
+  keyRef:
+    external: projects/gptops-playground/locations/us-central1/keyRings/kmsissuer-test/cryptoKeys/kmsissuer-test

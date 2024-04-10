@@ -50,19 +50,22 @@ jobs:
       - name: Set docker image to use in Kustomization
         run: make kustomize && cd config/manager && kustomize edit set image controller=${IMG}
 
-      - name: Deploy kms-issuer
-        run: kustomize build config/testing | kubectl apply -f -
+      - name: Create kmsissuer namespace
+        run: kubectl create namespace kms-issuer-system
           
       - name: Install GCP auth secret
         run: kubectl create -n kms-issuer-system secret generic kmsissueradc --from-file=gadcreds.json=${GOOGLE_APPLICATION_CREDENTIALS}
 
-      - name: Apply KMSIssuer from sample
-        run: kubectl apply -f ./config/samples/cert-manager_v1alpha1_kmsissuer.yaml
-      - name: Wait for KMSIssuer to be ready
-        run: kubectl wait --for=condition=Ready kmsissuer/kms-issuer-sample
+      - name: Deploy kms-issuer controller
+        run: kustomize build config/testing | kubectl apply -f -
 
-      - name: Apply Certificate from sample
-        run: kubectl apply -f ./config/samples/certificate.yaml
+      - name: Deploy test kms-issuer
+        run: kubectl apply -f ./config/testing/test-kmsissuer.yaml
+      - name: Wait for KMSIssuer to be ready
+        run: kubectl wait --for=condition=Ready kmsissuer/kms-issuer-test
+
+      - name: Deploy test Certificate
+        run: kubectl apply -f ./config/testing/certificate.yaml
       - name: Wait for Certificate to be ready  
         run: kubectl wait --for=condition=Ready certificate.cert-manager.io/example-com
 
