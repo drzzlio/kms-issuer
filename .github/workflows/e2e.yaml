@@ -26,7 +26,6 @@ jobs:
         uses: google-github-actions/auth@v2.1.2
         with:
           workload_identity_provider: projects/726581429530/locations/global/workloadIdentityPools/github/providers/github
-          service_account: kmsissuer-tester@gptops-playground.iam.gserviceaccount.com
 
       - name: Set IMG env var to previously-built image
         run: echo "IMG=${IMG_BASE}:sha-`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
@@ -52,7 +51,7 @@ jobs:
 
       - name: Create kmsissuer namespace
         run: kubectl create namespace kms-issuer-system
-          
+
       - name: Install GCP auth secret
         run: kubectl create -n kms-issuer-system secret generic kmsissueradc --from-file=gadcreds.json=${GOOGLE_APPLICATION_CREDENTIALS}
 
