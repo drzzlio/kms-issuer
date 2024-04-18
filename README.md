@@ -36,7 +36,7 @@ repo.
 ```bash
 kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.5/cert-manager.yaml
 ```
-   a. Optionally [install kubernetes config connector](https://cloud.google.com/config-connector/docs/concepts/installation-types) to manage your gcp kms keys with k8s.
+1a. Optionally [install kubernetes config connector](https://cloud.google.com/config-connector/docs/concepts/installation-types) to manage your gcp kms keys with k8s.
 
 2. Install and run the kms-issuer
 
