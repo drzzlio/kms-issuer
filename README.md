@@ -52,8 +52,8 @@ create a `KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
 
 It _can_ be used without config connector if, for example, your keys are being
 managed by an external IaC tool like terraform. In this case the `external`
-property of the `KMSIssuer.KeyRef` should be the self-link of the key in the
-GCP KMS API.
+property of the `KMSIssuer.KeyRef` should be the link to the key in the GCP KMS
+API like `projects/gptops-playground/locations/us-central1/keyRings/kmsissuer-test/cryptoKeys/kmsissuer-test`.
 
 ```yaml
 cat << EOF | kubectl apply -f -
@@ -184,15 +184,15 @@ A KMSIssuer resource configures a new [Cert-Manager external issuer](https://cer
 
 ## Disable Approval Check
 
-The KMS Issuer will wait for CertificateRequests to have an [approved condition
-set](https://cert-manager.io/docs/concepts/certificaterequest/#approval) before
+The KMS Issuer will wait for CertificateRequests to have an [approved condition set](https://cert-manager.io/docs/concepts/certificaterequest/#approval) before
 signing. If using an older version of cert-manager (pre v1.3), you can disable
 this check by supplying the command line flag `-enable-approved-check=false` to
 the Issuer Deployment.
 
 ## Contributing
 
-Kms-Issuer is built using the [Kubebuilder](https://book.kubebuilder.io/) framework. See the [official documentation](https://book.kubebuilder.io/quick-start.html) to get started and check [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+Kms-Issuer is built using the [Kubebuilder](https://book.kubebuilder.io/) framework. See the [official documentation](https://book.kubebuilder.io/quick-start.html) to get started and
+check [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## Security
 
