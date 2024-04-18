@@ -41,14 +41,7 @@ Optionally [install kubernetes config connector](https://cloud.google.com/config
 
 2. Install and run the kms-issuer
 
-Install the kms-issuer [Kubernetes Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) and start the controller.
-
-```bash
-# Install CRD
-make install
-# Run the controller (you must have have a role able to create/access KMS keys)
-make run
-```
+Install the kms-issuer as described in the previous section.
 
 3. Create a KMS KeyRing and CryptoKey
 
