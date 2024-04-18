@@ -53,7 +53,7 @@ create a `KMSKeyRing` and `KMSCryptoKey` with the appropriate settings.
 It _can_ be used without config connector if, for example, your keys are being
 managed by an external IaC tool like terraform. In this case the `external`
 property of the `KMSIssuer.KeyRef` should be the link to the key in the GCP KMS
-API like `projects/gptops-playground/locations/us-central1/keyRings/kmsissuer-test/cryptoKeys/kmsissuer-test`.
+API like `projects/$projectname/locations/$gcpregion/keyRings/$kmskeyringname/cryptoKeys/$kmskeyname`.
 
 ```yaml
 cat << EOF | kubectl apply -f -
